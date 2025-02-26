@@ -3,21 +3,31 @@ import { compareValue, hashValue } from "../utils/bcrypt";
 
 export interface UserDocument extends mongoose.Document {
   email: string;
+  fullName: string;
   password: string;
+  profilePic: string;
   verified: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(val: string): Promise<boolean>;
   omitPassword(): Pick<
     UserDocument,
-    "_id" | "email" | "verified" | "createdAt" | "updatedAt"
+    | "_id"
+    | "email"
+    | "fullName"
+    | "profilePic"
+    | "verified"
+    | "createdAt"
+    | "updatedAt"
   >;
 }
 
 const userSchema = new mongoose.Schema<UserDocument>(
   {
     email: { type: String, required: true, unique: true },
+    fullName: { type: String, required: true },
     password: { type: String, required: true },
+    profilePic: { type: String, default: "" },
     verified: { type: Boolean, required: true, default: false },
   },
   {

@@ -11,6 +11,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = loginSchema
   .extend({
+    fullName: z.string().min(1).max(255),
     confirmPassword: z.string().min(6).max(255),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -23,4 +24,8 @@ export const verificationCodeSchema = z.string().min(1).max(24);
 export const resetPasswordSchema = z.object({
   password: passwordSchema,
   verificationCode: verificationCodeSchema,
+});
+export const profilePicSchema = z.object({
+  email: emailSchema,
+  profilePic: z.string().min(1).max(255),
 });

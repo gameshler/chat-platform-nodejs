@@ -5,6 +5,7 @@ import {
   refreshUserAccessToken,
   resetPassword,
   sendPasswordResetEmail,
+  updateProfilePic,
   verifyEmail,
 } from "../services/auth";
 import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
@@ -17,6 +18,7 @@ import {
 import {
   emailSchema,
   loginSchema,
+  profilePicSchema,
   registerSchema,
   resetPasswordSchema,
   verificationCodeSchema,
@@ -99,4 +101,10 @@ export const resetPasswordHandler = catchErrors(async (req, res) => {
   return clearAuthCookies(res)
     .status(OK)
     .json({ message: "Password reset Successful" });
+});
+
+export const updateProfileHandler = catchErrors(async (req, res) => {
+  const request = profilePicSchema.parse(req.body);
+  await updateProfilePic(request);
+  return res.status(OK).json({ message: "Profile pic updated" });
 });

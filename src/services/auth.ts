@@ -1,5 +1,7 @@
+import cloudinary from "../config/cloudinary";
 import { CLIENT_URL } from "../constants/env";
 import {
+  BAD_REQUEST,
   CONFLICT,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
@@ -33,6 +35,7 @@ import {
 import { sendMail } from "../utils/sendMail";
 
 type CreateAccountParams = {
+  fullName: string;
   email: string;
   password: string;
   userAgent?: string;
@@ -44,6 +47,7 @@ export const createAccount = async (data: CreateAccountParams) => {
   appAssert(!existingUser, CONFLICT, "Email already exists");
 
   const user = await UserModel.create({
+    fullName: data.fullName,
     email: data.email,
     password: data.password,
   });
@@ -254,5 +258,29 @@ export const resetPassword = async ({
   await sessionModel.deleteMany({ userId: updatedUser._id });
   return {
     user: updatedUser.omitPassword(),
+  };
+};
+
+type UpdateProfilePicParams = {
+  email: string;
+  profilePic: string;
+};
+
+export const updateProfilePic = async ({
+  email,
+  profilePic,
+}: UpdateProfilePicParams) => {
+  const user = await UserModel.findOne({ email });
+  const userId = user?._id;
+  appAssert(userId, NOT_FOUND, "User not found");
+  const uploadResponse = await cloudinary.uploader.upload(profilePic);
+  appAssert(uploadResponse, BAD_REQUEST, "Failed to upload image");
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    { profilePic: uploadResponse.secure_url },
+    { new: true, runValidators: true }
+  );
+  return {
+    user: updatedUser?.omitPassword(),
   };
 };
