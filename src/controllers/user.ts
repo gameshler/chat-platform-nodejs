@@ -8,3 +8,9 @@ export const getUserHandler = catchErrors(async (req, res) => {
   appAssert(user, NOT_FOUND, "User not found");
   return res.status(OK).json({ user: user.omitPassword() });
 });
+export const getUsersHandler = catchErrors(async (req, res) => {
+  const userId = req.userId;
+  const users = await UserModel.find({ _id: { $ne: userId } });
+  appAssert(users, NOT_FOUND, "Users not found");
+  return res.status(OK).json(users.map((user) => user.omitPassword()));
+});
